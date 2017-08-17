@@ -1,24 +1,43 @@
-const http = require('http');
-
+const express = require('../config/express')();
+const request = require('supertest')(express);
 describe('#ProdutosController', function() {
-    it('#lista json', function(funcaoFinalizacao) {
-        var configuracoes = {
-            hostname: 'localhost',
-            port: '3000',
-            path: '/produtos',
-            headers: {
-                'Accept' : 'application/json'
-            }
-        }
 
-        http.get(configuracoes, function(res) {
-            if (res.statusCode == 200) {
-                console.log('status ta ok');
+    beforeEach(function(done) {
+        var conn = express.infra.connectionFactory();
+        conn.query("delete from produtos", function(ex, result) {
+            if(!ex){
+                done();
             }
-            if (res.headers['content-type'] == 'application/json; charset=utf-8') {
-                console.log('Content type está ok');
-            }
-            funcaoFinalizacao();
         })
-    })
-});
+    });
+
+    it('#lista json', function(done) {
+
+        request.get('/produtos')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200, done);
+     })
+
+     it('# cadastra de novo produto com dados invalidos', function(done) {
+
+        request.post('/produtos')
+            .send({
+                titulo: '',
+                descricao: 'Novo livro'
+            })
+            .expect(400, done)
+     })
+
+      it('# cadastra de novo produto com dados validos', function(done) {
+
+         request.post('/produtos')
+             .send({
+                 titulo: 'Titulo Novo',
+                 descricao: 'Novo livro',
+                 preco: 20.50
+             })
+             .expect(302, done)
+      })
+
+})
