@@ -20,6 +20,17 @@ function createDBConnection() {
         });
     }
 
+    if (process.env.NODE_ENV == 'production') {
+        // caso for usar expressao regular para extrair
+        // os dados da variavel de ambiente urlDeConexao = process.env.CLEARDB_DATABASE_URL;
+        return mysql.createConnection({
+            host: 'us-cdbr-iron-east-05.cleardb.net',
+            user: 'bf4f8e6d27b3fa',
+            password: 'c8dca12f',
+            database: 'heroku_ec2b81128fc738b'
+        });
+    }
+
 }
 
 //warpper
